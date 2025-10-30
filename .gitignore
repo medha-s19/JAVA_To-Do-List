@@ -1,0 +1,9 @@
+/.gradle/
+/gradle/
+/gradlew.bat
+/gradlew
+/build/
+/tasks.obj
+.DS_Store
+/.idea/
+/usermanual/.DS_Store
