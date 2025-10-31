@@ -3,7 +3,7 @@ package org.sda.todolist;
 import java.util.Scanner;
 
 /**
- * This is main class of the project
+ * Main class of the To-Do List project
  *
  * @author Imtiaz
  * @version 1.0
