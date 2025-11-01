@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Collections;
 import java.util.Scanner;
 import java.time.temporal.ChronoUnit;
 
@@ -24,8 +23,6 @@ import java.time.temporal.ChronoUnit;
 public class TodoList {
     // An array list of task objects
     private ArrayList<Task> taskList;
-    // single Scanner to read from System.in (do not close System.in)
-    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * creating an TodoList object
@@ -40,31 +37,8 @@ public class TodoList {
      * @param project A String that holds the name of project associated with task, and it could be an empty string.
      * @param dueDate The due date of the task as yyyy-mm-dd format
      */
-    public boolean addTask(String title, String project, LocalDate dueDate) {
-        // Normalize title for comparison
-        String titleNorm = (title == null) ? "" : title.trim().toLowerCase();
-
-        // Check for duplicate task (same title ignoring case/spaces and same due date)
-        boolean exists = this.taskList.stream().anyMatch(t -> {
-            String tTitle = (t.getTitle() == null) ? "" : t.getTitle().trim().toLowerCase();
-
-            boolean titleMatches = !titleNorm.isEmpty() && titleNorm.equals(tTitle);
-
-            boolean dateMatches;
-            if (t.getDueDate() == null && dueDate == null) dateMatches = true;
-            else if (t.getDueDate() == null || dueDate == null) dateMatches = false;
-            else dateMatches = t.getDueDate().toString().equals(dueDate.toString());
-
-            return titleMatches && dateMatches;
-        });
-
-        if (exists) {
-            Messages.showMessage("Task already exists!", true);
-            return false;
-        }
-
-        this.taskList.add(new Task(title, project, dueDate));
-        return true;
+    public void addTask(String title, String project, LocalDate dueDate) {
+        this.taskList.add(new Task(title, project, dueDate, "MEDIUM"));
     }
 
     /**
@@ -73,20 +47,19 @@ public class TodoList {
      * @return true, if the Tasks object is created and added to ArrayList, otherwise false
      */
     public boolean readTaskFromUser() {
+        Scanner scan = new Scanner(System.in);
+
         try {
             System.out.println(Messages.GREEN_TEXT + "Please enter the following details to add a task:" + Messages.RESET_TEXT);
             System.out.print(">>> Task Title  : ");
-            String title = this.scanner.nextLine();
+            String title = scan.nextLine();
             System.out.print(">>> Project Name: ");
-            String project = this.scanner.nextLine();
+            String project = scan.nextLine();
             System.out.print(">>> Due Date [example: 2019-12-31] : ");
-            LocalDate dueDate = LocalDate.parse(this.scanner.nextLine());
+            LocalDate dueDate = LocalDate.parse(scan.nextLine());
 
-            // Use addTask to benefit from duplicate checking and consistent construction
-            boolean added = this.addTask(title, project, dueDate);
-            if (added) {
-                Messages.showMessage("Task is added successfully", false);
-            }
+            this.taskList.add(new Task(title, project, dueDate, "MEDIUM"));
+            Messages.showMessage("Task is added successfully", false);
 
             return true;
         } catch (Exception e) {
@@ -103,27 +76,28 @@ public class TodoList {
      * @return true, if the Tasks object is updated in ArrayList, otherwise false
      */
     public boolean readTaskFromUserToUpdate(Task task) {
+        Scanner scan = new Scanner(System.in);
         boolean isTaskUpdated = false;
 
         try {
             System.out.println(Messages.GREEN_TEXT + "Please enter the following details to update a task:"
                     + "\nIf you do not want to change any field, just press ENTER key!" + Messages.RESET_TEXT);
             System.out.print(">>> Task Title  : ");
-            String title = this.scanner.nextLine();
+            String title = scan.nextLine();
             if (!(title.trim().equals("") || title == null)) {
                 task.setTitle(title);
                 isTaskUpdated = true;
             }
 
             System.out.print(">>> Project Name: ");
-            String project = this.scanner.nextLine();
+            String project = scan.nextLine();
             if (!(project.trim().equals("") || project == null)) {
                 task.setProject(project);
                 isTaskUpdated = true;
             }
 
             System.out.print(">>> Due Date [example: 2019-12-31] : ");
-            String dueDate = this.scanner.nextLine();
+            String dueDate = scan.nextLine();
             if (!(dueDate.trim().equals("") || dueDate == null)) {
                 task.setDueDate(LocalDate.parse(dueDate));
                 isTaskUpdated = true;
@@ -142,110 +116,110 @@ public class TodoList {
      * A method to display the contents of ArrayList with first column as task number
      */
     public void listAllTasksWithIndex() {
-    String displayFormat = "%-4s %-30s %-20s %-12s %-15s %-10s";
-        // NUM, TITLE, PROJECT, DUE DATE, DAYS TILL DUE, COMPLETED
+    String displayFormat = "%-4s %-25s %-20s %-10s %-12s %-15s %-10s";
+    // NUM, TITLE, PROJECT, PRIORITY, DUE DATE, DAYS LEFT, COMPLETED
 
-        if (taskList.size() > 0) {
-            System.out.println(String.format(displayFormat, "NUM", "TITLE", "PROJECT", "DUE DATE", "DAYS TILL DUE", "COMPLETED"));
-            Messages.separator('=', 90);
-        } else {
-            System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
-        }
-
-        java.time.LocalDate today = java.time.LocalDate.now();
-
-        // Sort tasks by due date before displaying (tasks without due date go last)
-        Collections.sort(taskList, new Comparator<Task>() {
-            @Override
-            public int compare(Task t1, Task t2) {
-                if (t1.getDueDate() == null && t2.getDueDate() == null) return 0;
-                if (t1.getDueDate() == null) return 1;  // tasks without due date go last
-                if (t2.getDueDate() == null) return -1;
-                return t1.getDueDate().compareTo(t2.getDueDate());
-            }
-        });
-
-        taskList.stream()
-            .forEach(task -> {
-                java.time.LocalDate due = task.getDueDate();
-                String dueStr = (due == null) ? "-" : due.toString();
-                long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
-                System.out.println(String.format(displayFormat,
-                    taskList.indexOf(task) + 1,
-                    task.getTitle(),
-                    task.getProject(),
-                    dueStr,
-                    daysTillDue,
-                    (task.isComplete() ? "YES" : "NO")
-                ));
-            });
+    if (taskList.size() > 0) {
+        System.out.println(String.format(displayFormat,
+                "NUM", "TITLE", "PROJECT", "PRIORITY", "DUE DATE", "DAYS LEFT", "COMPLETED"));
+        Messages.separator('=', 100);
+    } else {
+        System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+        return;
     }
+
+    LocalDate today = LocalDate.now();
+    for (int i = 0; i < taskList.size(); i++) {
+        Task task = taskList.get(i);
+        LocalDate due = task.getDueDate();
+        String dueStr = (due == null) ? "-" : due.toString();
+        long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+
+        System.out.println(String.format(displayFormat,
+                (i + 1),
+                task.getTitle(),
+                task.getProject(),
+                task.getPriority(),  
+                dueStr,
+                daysTillDue,
+                (task.isComplete() ? "YES" : "NO")
+        ));
+    }
+}
+
 
     /**
      * A method to display the contents of ArrayList
      * @param sortBy a string holding a number, "2" for sorting by project, otherwise it will sorty by date
      */
     public void listAllTasks(String sortBy) {
-        Messages.separator('=',75);
-        System.out.println(
-                "Total Tasks = " + taskList.size() +
-                        "\t\t (Completed = " + completedCount() + "\t\t" +
-                        Messages.RED_TEXT + " Not Compeleted = " + notCompletedCount() + Messages.RESET_TEXT +
-                        " )");
-        Messages.separator('=',75);
+    Messages.separator('=', 75);
+    System.out.println(
+            "Total Tasks = " + taskList.size() +
+                    "\t\t (Completed = " + completedCount() + "\t\t" +
+                    Messages.RED_TEXT + " Not Completed = " + notCompletedCount() + Messages.RESET_TEXT +
+                    " )");
+    Messages.separator('=', 75);
 
-        java.time.LocalDate today = java.time.LocalDate.now();
+    LocalDate today = LocalDate.now();
 
-        if (sortBy.equals("2")) {
-            String displayFormat = "%-20s %-30s %-12s %-15s %-10s";
+    if (sortBy.equals("2")) {
+        // 🟢 Sort by PROJECT
+        String displayFormat = "%-20s %-25s %-10s %-12s %-15s %-10s";
+        if (taskList.size() > 0) {
+            System.out.println(String.format(displayFormat,
+                    "PROJECT", "TITLE", "PRIORITY", "DUE DATE", "DAYS LEFT", "COMPLETED"));
+            Messages.separator('=', 95);
+        } else {
+            System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+        }
 
-            if (taskList.size() > 0) {
-                System.out.println(String.format(displayFormat, "PROJECT", "TITLE", "DUE DATE", "DAYS TILL DUE", "COMPLETED"));
-                Messages.separator('=', 90);
-            } else {
-                System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
-            }
-
-            taskList.stream()
-                .sorted(Comparator.comparing(Task::getProject, Comparator.nullsLast(String::compareTo)))
+        taskList.stream()
+                .sorted(Comparator.comparing(Task::getProject))
                 .forEach(task -> {
-                    java.time.LocalDate due = task.getDueDate();
+                    LocalDate due = task.getDueDate();
                     String dueStr = (due == null) ? "-" : due.toString();
                     long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
                     System.out.println(String.format(displayFormat,
-                        task.getProject(),
-                        task.getTitle(),
-                        dueStr,
-                        daysTillDue,
-                        (task.isComplete() ? "YES" : "NO")
+                            task.getProject(),
+                            task.getTitle(),
+                            task.getPriority(),
+                            dueStr,
+                            daysTillDue,
+                            (task.isComplete() ? "YES" : "NO")
                     ));
                 });
+
+    } else {
+        // 🟢 Sort by DATE
+        String displayFormat = "%-12s %-25s %-20s %-10s %-15s %-10s";
+        if (taskList.size() > 0) {
+            System.out.println(String.format(displayFormat,
+                    "DUE DATE", "TITLE", "PROJECT", "PRIORITY", "DAYS LEFT", "COMPLETED"));
+            Messages.separator('=', 95);
         } else {
-            String displayFormat = "%-12s %-30s %-20s %-15s %-10s";
+            System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+        }
 
-            if (taskList.size() > 0) {
-                System.out.println(String.format(displayFormat, "DUE DATE", "TITLE", "PROJECT", "DAYS TILL DUE", "COMPLETED"));
-                Messages.separator('=', 90);
-            } else {
-                System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
-            }
-
-            taskList.stream()
+        taskList.stream()
                 .sorted(Comparator.comparing(Task::getDueDate))
                 .forEach(task -> {
-                    java.time.LocalDate due = task.getDueDate();
+                    LocalDate due = task.getDueDate();
                     String dueStr = (due == null) ? "-" : due.toString();
                     long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
                     System.out.println(String.format(displayFormat,
-                        dueStr,
-                        task.getTitle(),
-                        task.getProject(),
-                        daysTillDue,
-                        (task.isComplete() ? "YES" : "NO")
+                            dueStr,
+                            task.getTitle(),
+                            task.getProject(),
+                            task.getPriority(),
+                            daysTillDue,
+                            (task.isComplete() ? "YES" : "NO")
                     ));
                 });
-        }
     }
+}
+
+
 
     /**
      * A method to select a particular Task object from ArrayList and perform editing operations
@@ -270,7 +244,8 @@ public class TodoList {
             Messages.showMessage("Task Num " + selectedTask + "  is selected:" + task.formattedStringOfTask(), false);
 
             Messages.editTaskMenu();
-            String editChoice = this.scanner.nextLine();
+            Scanner scan = new Scanner(System.in);
+            String editChoice = scan.nextLine();
             switch (editChoice) {
                 case "1":
                     readTaskFromUserToUpdate(task);
@@ -290,6 +265,9 @@ public class TodoList {
             Messages.showMessage(e.getMessage(),true);
         }
     }
+
+    /**
+ 
 
     /**
      * A method to count the number of tasks with completed status
@@ -317,7 +295,7 @@ public class TodoList {
      * @return true if the reading operation was successful, otherwise false
      */
     public boolean readFromFile(String filename) {
-    // boolean status not used
+        boolean status = false;
 
         try {
             if (!Files.isReadable(Paths.get(filename))) {
