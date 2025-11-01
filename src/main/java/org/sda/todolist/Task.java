@@ -16,13 +16,19 @@ import java.time.format.DateTimeFormatter;
 
 public class Task implements Serializable {
 
+     // Define priority levels inside the Task class
+     public enum Priority {
+        HIGH, MEDIUM, LOW
+    }
+
     private String title;
     private String project;
     private boolean complete;
     private LocalDate dueDate;
 
     // ✅ NEW FEATURES
-    private String priority;          // Low, Medium, High
+    private Priority priority;        
+         // Low, Medium, High
     private LocalDate completedDate;  // When task was completed
 
     /**
@@ -91,17 +97,18 @@ public class Task implements Serializable {
 
     // -------- NEW PRIORITY METHODS --------
 
-    public String getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
     public void setPriority(String priority) {
-        if (priority == null || priority.trim().equals("")) {
-            this.priority = "Medium"; // Default
-        } else {
-            this.priority = priority.trim();
-        }
+    try {
+        this.priority = Priority.valueOf(priority.toUpperCase());
+    } catch (Exception e) {
+        this.priority = Priority.MEDIUM; // Default
     }
+}
+
 
     public LocalDate getCompletedDate() {
         return completedDate;
