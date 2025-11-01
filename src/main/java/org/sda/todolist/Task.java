@@ -40,6 +40,13 @@ public class Task implements Serializable {
         this.completedDate = null;
     }
 
+    /**
+     * Backwards-compatible constructor: default priority = "Medium"
+     */
+    public Task(String title, String project, LocalDate dueDate) {
+        this(title, project, dueDate, "Medium");
+    }
+
     // -------- EXISTING METHODS --------
 
     public String getTitle() {
@@ -122,4 +129,3 @@ public class Task implements Serializable {
         );
     }
 }
-
