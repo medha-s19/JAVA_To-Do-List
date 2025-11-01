@@ -24,6 +24,8 @@ import java.time.temporal.ChronoUnit;
 public class TodoList {
     // An array list of task objects
     private ArrayList<Task> taskList;
+    // single Scanner to read from System.in (do not close System.in)
+    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * creating an TodoList object
@@ -38,8 +40,31 @@ public class TodoList {
      * @param project A String that holds the name of project associated with task, and it could be an empty string.
      * @param dueDate The due date of the task as yyyy-mm-dd format
      */
-    public void addTask(String title, String project, LocalDate dueDate) {
-        this.taskList.add(new Task(title,project,dueDate));
+    public boolean addTask(String title, String project, LocalDate dueDate) {
+        // Normalize title for comparison
+        String titleNorm = (title == null) ? "" : title.trim().toLowerCase();
+
+        // Check for duplicate task (same title ignoring case/spaces and same due date)
+        boolean exists = this.taskList.stream().anyMatch(t -> {
+            String tTitle = (t.getTitle() == null) ? "" : t.getTitle().trim().toLowerCase();
+
+            boolean titleMatches = !titleNorm.isEmpty() && titleNorm.equals(tTitle);
+
+            boolean dateMatches;
+            if (t.getDueDate() == null && dueDate == null) dateMatches = true;
+            else if (t.getDueDate() == null || dueDate == null) dateMatches = false;
+            else dateMatches = t.getDueDate().toString().equals(dueDate.toString());
+
+            return titleMatches && dateMatches;
+        });
+
+        if (exists) {
+            Messages.showMessage("Task already exists!", true);
+            return false;
+        }
+
+        this.taskList.add(new Task(title, project, dueDate));
+        return true;
     }
 
     /**
@@ -48,19 +73,20 @@ public class TodoList {
      * @return true, if the Tasks object is created and added to ArrayList, otherwise false
      */
     public boolean readTaskFromUser() {
-        Scanner scan = new Scanner(System.in);
-
         try {
             System.out.println(Messages.GREEN_TEXT + "Please enter the following details to add a task:" + Messages.RESET_TEXT);
             System.out.print(">>> Task Title  : ");
-            String title = scan.nextLine();
+            String title = this.scanner.nextLine();
             System.out.print(">>> Project Name: ");
-            String project = scan.nextLine();
+            String project = this.scanner.nextLine();
             System.out.print(">>> Due Date [example: 2019-12-31] : ");
-            LocalDate dueDate = LocalDate.parse(scan.nextLine());
+            LocalDate dueDate = LocalDate.parse(this.scanner.nextLine());
 
-            this.taskList.add(new Task(title,project,dueDate));
-            Messages.showMessage("Task is added successfully", false);
+            // Use addTask to benefit from duplicate checking and consistent construction
+            boolean added = this.addTask(title, project, dueDate);
+            if (added) {
+                Messages.showMessage("Task is added successfully", false);
+            }
 
             return true;
         } catch (Exception e) {
@@ -77,28 +103,27 @@ public class TodoList {
      * @return true, if the Tasks object is updated in ArrayList, otherwise false
      */
     public boolean readTaskFromUserToUpdate(Task task) {
-        Scanner scan = new Scanner(System.in);
         boolean isTaskUpdated = false;
 
         try {
             System.out.println(Messages.GREEN_TEXT + "Please enter the following details to update a task:"
                     + "\nIf you do not want to change any field, just press ENTER key!" + Messages.RESET_TEXT);
             System.out.print(">>> Task Title  : ");
-            String title = scan.nextLine();
+            String title = this.scanner.nextLine();
             if (!(title.trim().equals("") || title == null)) {
                 task.setTitle(title);
                 isTaskUpdated = true;
             }
 
             System.out.print(">>> Project Name: ");
-            String project = scan.nextLine();
+            String project = this.scanner.nextLine();
             if (!(project.trim().equals("") || project == null)) {
                 task.setProject(project);
                 isTaskUpdated = true;
             }
 
             System.out.print(">>> Due Date [example: 2019-12-31] : ");
-            String dueDate = scan.nextLine();
+            String dueDate = this.scanner.nextLine();
             if (!(dueDate.trim().equals("") || dueDate == null)) {
                 task.setDueDate(LocalDate.parse(dueDate));
                 isTaskUpdated = true;
@@ -245,8 +270,7 @@ public class TodoList {
             Messages.showMessage("Task Num " + selectedTask + "  is selected:" + task.formattedStringOfTask(), false);
 
             Messages.editTaskMenu();
-            Scanner scan = new Scanner(System.in);
-            String editChoice = scan.nextLine();
+            String editChoice = this.scanner.nextLine();
             switch (editChoice) {
                 case "1":
                     readTaskFromUserToUpdate(task);
@@ -293,7 +317,7 @@ public class TodoList {
      * @return true if the reading operation was successful, otherwise false
      */
     public boolean readFromFile(String filename) {
-        boolean status = false;
+    // boolean status not used
 
         try {
             if (!Files.isReadable(Paths.get(filename))) {
