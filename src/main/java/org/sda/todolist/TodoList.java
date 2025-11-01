@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.Scanner;
 import java.time.temporal.ChronoUnit;
 
@@ -127,6 +128,18 @@ public class TodoList {
         }
 
         java.time.LocalDate today = java.time.LocalDate.now();
+
+        // Sort tasks by due date before displaying (tasks without due date go last)
+        Collections.sort(taskList, new Comparator<Task>() {
+            @Override
+            public int compare(Task t1, Task t2) {
+                if (t1.getDueDate() == null && t2.getDueDate() == null) return 0;
+                if (t1.getDueDate() == null) return 1;  // tasks without due date go last
+                if (t2.getDueDate() == null) return -1;
+                return t1.getDueDate().compareTo(t2.getDueDate());
+            }
+        });
+
         taskList.stream()
             .forEach(task -> {
                 java.time.LocalDate due = task.getDueDate();
@@ -169,7 +182,7 @@ public class TodoList {
             }
 
             taskList.stream()
-                .sorted(Comparator.comparing(Task::getProject))
+                .sorted(Comparator.comparing(Task::getProject, Comparator.nullsLast(String::compareTo)))
                 .forEach(task -> {
                     java.time.LocalDate due = task.getDueDate();
                     String dueStr = (due == null) ? "-" : due.toString();

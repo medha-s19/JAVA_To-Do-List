@@ -95,11 +95,14 @@ public class Task implements Serializable {
     }
 
     public void setDueDate(LocalDate dueDate) throws DateTimeException {
-        if (dueDate.compareTo(LocalDate.now()) < 0) {
-            throw new DateTimeException("Past Date not allowed");
+        if (dueDate == null) {
+            throw new DateTimeException("Please enter a valid date.");
         }
-        DateTimeFormatter formattedDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        this.dueDate = LocalDate.parse(dueDate.format(formattedDate));
+        if (dueDate.isBefore(LocalDate.now())) {
+            throw new DateTimeException("Please enter a future date (not a past one).");
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        this.dueDate = LocalDate.parse(dueDate.format(formatter));
     }
 
     // -------- NEW PRIORITY METHODS --------
