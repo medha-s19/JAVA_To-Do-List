@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
+import java.time.temporal.ChronoUnit;
 
 /**
  * This class represents ToDoList which contains the ArrayList of Task objects
@@ -115,23 +116,31 @@ public class TodoList {
      * A method to display the contents of ArrayList with first column as task number
      */
     public void listAllTasksWithIndex() {
-        String displayFormat = "%-4s%-35s %-20s %-10s %-10s";
+    String displayFormat = "%-4s %-30s %-20s %-12s %-15s %-10s";
+        // NUM, TITLE, PROJECT, DUE DATE, DAYS TILL DUE, COMPLETED
 
-        if (taskList.size()>0) {
-            System.out.println(String.format(displayFormat,"NUM","TITLE","PROJECT","DUE DATE","COMPLETED"));
-            System.out.println(String.format(displayFormat,"===","=====","=======","========","========="));
+        if (taskList.size() > 0) {
+            System.out.println(String.format(displayFormat, "NUM", "TITLE", "PROJECT", "DUE DATE", "DAYS TILL DUE", "COMPLETED"));
+            Messages.separator('=', 90);
         } else {
             System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
         }
 
+        java.time.LocalDate today = java.time.LocalDate.now();
         taskList.stream()
-                .forEach(task -> System.out.println(String.format(displayFormat,
-                        taskList.indexOf(task)+1,
-                        task.getTitle(),
-                        task.getProject(),
-                        task.getDueDate(),
-                        (task.isComplete()?"YES":"NO")
-                )));
+            .forEach(task -> {
+                java.time.LocalDate due = task.getDueDate();
+                String dueStr = (due == null) ? "-" : due.toString();
+                long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+                System.out.println(String.format(displayFormat,
+                    taskList.indexOf(task) + 1,
+                    task.getTitle(),
+                    task.getProject(),
+                    dueStr,
+                    daysTillDue,
+                    (task.isComplete() ? "YES" : "NO")
+                ));
+            });
     }
 
     /**
@@ -147,40 +156,56 @@ public class TodoList {
                         " )");
         Messages.separator('=',75);
 
+        java.time.LocalDate today = java.time.LocalDate.now();
+
         if (sortBy.equals("2")) {
-            String displayFormat = "%-20s %-35s %-10s %-10s";
-
-            if (taskList.size()>0) {
-                System.out.println(String.format(displayFormat,"PROJECT","TITLE","DUE DATE","COMPLETED"));
-                System.out.println(String.format(displayFormat,"=======","=====","========","========="));
-            } else {
-                System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
-            }
-
-            taskList.stream()
-                    .sorted(Comparator.comparing(Task::getProject))
-                    .forEach(task -> System.out.println(String.format(displayFormat,task.getProject(),
-                            task.getTitle(),
-                            task.getDueDate(),
-                            (task.isComplete()?"YES":"NO")
-                    )));
-        } else {
-            String displayFormat = "%-10s %-35s %-20s %-10s";
+            String displayFormat = "%-20s %-30s %-12s %-15s %-10s";
 
             if (taskList.size() > 0) {
-                System.out.println(String.format(displayFormat,"DUE DATE","TITLE","PROJECT" , "COMPLETED"));
-                System.out.println(String.format(displayFormat,"========","=====","=======" , "========="));
+                System.out.println(String.format(displayFormat, "PROJECT", "TITLE", "DUE DATE", "DAYS TILL DUE", "COMPLETED"));
+                Messages.separator('=', 90);
             } else {
                 System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
             }
 
             taskList.stream()
-                    .sorted(Comparator.comparing(Task::getDueDate))
-                    .forEach(task -> System.out.println(String.format(displayFormat,task.getDueDate(),
-                            task.getTitle(),
-                            task.getProject(),
-                            (task.isComplete() ? "YES" : "NO")
-                    )));
+                .sorted(Comparator.comparing(Task::getProject))
+                .forEach(task -> {
+                    java.time.LocalDate due = task.getDueDate();
+                    String dueStr = (due == null) ? "-" : due.toString();
+                    long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+                    System.out.println(String.format(displayFormat,
+                        task.getProject(),
+                        task.getTitle(),
+                        dueStr,
+                        daysTillDue,
+                        (task.isComplete() ? "YES" : "NO")
+                    ));
+                });
+        } else {
+            String displayFormat = "%-12s %-30s %-20s %-15s %-10s";
+
+            if (taskList.size() > 0) {
+                System.out.println(String.format(displayFormat, "DUE DATE", "TITLE", "PROJECT", "DAYS TILL DUE", "COMPLETED"));
+                Messages.separator('=', 90);
+            } else {
+                System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+            }
+
+            taskList.stream()
+                .sorted(Comparator.comparing(Task::getDueDate))
+                .forEach(task -> {
+                    java.time.LocalDate due = task.getDueDate();
+                    String dueStr = (due == null) ? "-" : due.toString();
+                    long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+                    System.out.println(String.format(displayFormat,
+                        dueStr,
+                        task.getTitle(),
+                        task.getProject(),
+                        daysTillDue,
+                        (task.isComplete() ? "YES" : "NO")
+                    ));
+                });
         }
     }
 
