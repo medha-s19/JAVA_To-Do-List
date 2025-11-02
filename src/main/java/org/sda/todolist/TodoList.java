@@ -163,32 +163,34 @@ public class TodoList {
 
     LocalDate today = LocalDate.now();
 
-    if (sortBy.equals("2")) {
-        // 🟢 Sort by PROJECT
-        String displayFormat = "%-20s %-25s %-10s %-12s %-15s %-10s";
-        if (taskList.size() > 0) {
-            System.out.println(String.format(displayFormat,
-                    "PROJECT", "TITLE", "PRIORITY", "DUE DATE", "DAYS LEFT", "COMPLETED"));
-            Messages.separator('=', 95);
-        } else {
-            System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
-        }
+        if (sortBy.equals("2")) {
+            // Show: PROJECT | TITLE | DUE DATE [OVERDUE] | STATUS
+            String displayFormat = "%-20s %-30s %-25s %-10s";
 
-        taskList.stream()
-                .sorted(Comparator.comparing(Task::getProject))
-                .forEach(task -> {
-                    LocalDate due = task.getDueDate();
-                    String dueStr = (due == null) ? "-" : due.toString();
-                    long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
-                    System.out.println(String.format(displayFormat,
-                            task.getProject(),
-                            task.getTitle(),
-                            task.getPriority(),
-                            dueStr,
-                            daysTillDue,
-                            (task.isComplete() ? "YES" : "NO")
-                    ));
-                });
+            if (taskList.size() > 0) {
+                System.out.println(String.format(displayFormat, "PROJECT", "TITLE", "DUE DATE", "STATUS"));
+                Messages.separator('=', 90);
+            } else {
+                System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+            }
+
+            taskList.stream()
+                    .sorted(Comparator.comparing(Task::getProject, Comparator.nullsLast(String::compareTo)))
+                    .forEach(task -> {
+                        String status = task.isComplete() ? "YES" : "NO";
+                        String overdue = "";
+                        java.time.LocalDate d = task.getDueDate();
+                        if (d != null && !task.isComplete() && d.isBefore(java.time.LocalDate.now())) {
+                            overdue = " " + Messages.RED_TEXT + "OVERDUE" + Messages.RESET_TEXT;
+                        }
+                        String dueDisplay = (d == null) ? "-" : d.toString();
+                        System.out.println(String.format(displayFormat,
+                                task.getProject(),
+                                task.getTitle(),
+                                dueDisplay + overdue,
+                                status
+                        ));
+                    });
 
     } else {
         // 🟢 Sort by DATE
