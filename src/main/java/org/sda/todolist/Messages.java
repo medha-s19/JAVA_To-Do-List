@@ -68,7 +68,7 @@ public class Messages {
         System.out.println("\nTask Edit Options");
         System.out.println("======================\n");
         System.out.println("Pick an option:");
-        System.out.println("(1) Modify selected task");
+        System.out.println("(1) Modify selected tasks");
         System.out.println("(2) Mark selected task as COMPLETED");
         System.out.println("(3) Delete selected task");
         System.out.println("(4) Return to main menu "

@@ -17,6 +17,11 @@ import java.time.format.DateTimeFormatter;
 
 public class Task implements Serializable {
 
+     // Define priority levels inside the Task class
+     public enum Priority {
+        HIGH, MEDIUM, LOW
+    }
+
     // A String that holds the title of a task and it cannot be empty or null.
     private String title;
 
@@ -29,6 +34,10 @@ public class Task implements Serializable {
     // The due date of the task as yyyy-mm-dd format
     private LocalDate dueDate;
 
+    // ✅ NEW FEATURES
+    private String priority;          // Low, Medium, High
+    private LocalDate completedDate;  // When task was completed
+
     /**
      * Creating an object of Task class
      * @param title A String that holds the title of a task and it cannot be empty or null.
@@ -40,6 +49,13 @@ public class Task implements Serializable {
         this.setProject(project);
         this.complete = false;
         this.setDueDate(dueDate);
+    }
+
+    /**
+     * Backwards-compatible constructor: default priority = "Medium"
+     */
+    public Task(String title, String project, LocalDate dueDate) {
+        this(title, project, dueDate, "Medium");
     }
 
     // Get title
@@ -89,17 +105,34 @@ public class Task implements Serializable {
 
     // Set due date
     public void setDueDate(LocalDate dueDate) throws DateTimeException {
-        // Throw DateTimeException if past date is given
-        if (dueDate.compareTo(LocalDate.now())<0) {
+        if (dueDate.compareTo(LocalDate.now()) < 0) {
             throw new DateTimeException("Past Date not allowed");
         }
-
-        //Ensure dueDate is saved as yyyy-MM-dd
         DateTimeFormatter formattedDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.dueDate = LocalDate.parse(dueDate.format(formattedDate));
     }
 
-    // Print formatted task info
+    // -------- NEW PRIORITY METHODS --------
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        if (priority == null || priority.trim().equals("")) {
+            this.priority = "Medium"; // Default
+        } else {
+            this.priority = priority.trim();
+        }
+    }
+
+    public LocalDate getCompletedDate() {
+        return completedDate;
+    }
+
+    /**
+     * Formatted display for the task
+     */
     public String formattedStringOfTask() {
         return (
                 "\nTitle     : " + title +
@@ -110,5 +143,4 @@ public class Task implements Serializable {
         );
     }
 }
-
 
