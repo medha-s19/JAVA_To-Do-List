@@ -47,27 +47,38 @@ public class TodoList {
      * @return true, if the Tasks object is created and added to ArrayList, otherwise false
      */
     public boolean readTaskFromUser() {
-        Scanner scan = new Scanner(System.in);
+    Scanner scan = new Scanner(System.in);
 
-        try {
-            System.out.println(Messages.GREEN_TEXT + "Please enter the following details to add a task:" + Messages.RESET_TEXT);
-            System.out.print(">>> Task Title  : ");
-            String title = scan.nextLine();
-            System.out.print(">>> Project Name: ");
-            String project = scan.nextLine();
-            System.out.print(">>> Due Date [example: 2019-12-31] : ");
-            LocalDate dueDate = LocalDate.parse(scan.nextLine());
+    try {
+        System.out.println(Messages.GREEN_TEXT + "Please enter the following details to add a task:" + Messages.RESET_TEXT);
+        System.out.print(">>> Task Title  : ");
+        String title = scan.nextLine();
+        System.out.print(">>> Project Name: ");
+        String project = scan.nextLine();
+        System.out.print(">>> Due Date [example: 2019-12-31] : ");
+        LocalDate dueDate = LocalDate.parse(scan.nextLine());
 
-            this.taskList.add(new Task(title, project, dueDate, "MEDIUM"));
-            Messages.showMessage("Task is added successfully", false);
+        //  Ask for priority
+        System.out.print(">>> Priority (HIGH / MEDIUM / LOW): ");
+        String priority = scan.nextLine().trim().toUpperCase();
 
-            return true;
-        } catch (Exception e) {
-            Messages.showMessage(e.getMessage(),true);
-            return false;
+        //  Validate empty or invalid input — default to MEDIUM
+        if (priority.isEmpty() || 
+            !(priority.equals("HIGH") || priority.equals("MEDIUM") || priority.equals("LOW"))) {
+            priority = "MEDIUM";
         }
 
+        //  Create task with user-chosen priority
+        this.taskList.add(new Task(title, project, dueDate, priority));
+
+        Messages.showMessage("Task is added successfully with priority: " + priority, false);
+        return true;
+
+    } catch (Exception e) {
+        Messages.showMessage(e.getMessage(), true);
+        return false;
     }
+}
 
     /**
      * A method to read the value from user (standard input, i.e., terminal)
