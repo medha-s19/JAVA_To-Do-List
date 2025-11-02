@@ -3,7 +3,7 @@ package org.sda.todolist;
 import java.util.Scanner;
 
 /**
- * This is main class of the project
+ * Main class of the To-Do List Project
  *
  * @author Imtiaz
  * @version 1.0
@@ -14,7 +14,6 @@ import java.util.Scanner;
 public class Main {
     // A string to hold the data file name which contains all tasks and their details
     public static String filename = "tasks.obj";
-    System.out.println("first Git change ");
 
     /**
      * main method to run the command line based "To Do List" application
@@ -72,6 +71,6 @@ public class Main {
             todoList.saveToFile(filename);
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
-        }
-    }
+}
+}
 }
