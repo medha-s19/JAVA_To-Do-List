@@ -71,6 +71,6 @@ public class Main {
             todoList.saveToFile(filename);
             System.out.println(e.getMessage());
             System.out.println(e.getStackTrace());
-        }
-    }
+}
+}
 }

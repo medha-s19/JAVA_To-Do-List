@@ -5,19 +5,10 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/**
- * This is a model class and it represents a Task object
- * and it contains necessary fields and methods to operate
- * on task object.
- *
- * @author Anushka
- * @version 2.0
- **/
-
 public class Task implements Serializable {
 
-     // Define priority levels inside the Task class
-     public enum Priority {
+    // Priority levels
+    public enum Priority {
         HIGH, MEDIUM, LOW
     }
 
@@ -26,34 +17,26 @@ public class Task implements Serializable {
     private boolean complete;
     private LocalDate dueDate;
 
-    // ✅ NEW FEATURES
-    private Priority priority;        
-         // Low, Medium, High
+    private String priority;          // Low, Medium, High
     private LocalDate completedDate;  // When task was completed
 
     /**
-     * Creating an object of Task class
+     * Main constructor (with priority)
      */
     public Task(String title, String project, LocalDate dueDate, String priority) {
-
         this.setTitle(title);
         this.setProject(project);
         this.complete = false;
         this.setDueDate(dueDate);
-
-        // ✅ new field
         this.setPriority(priority);
-        this.completedDate = null;
     }
 
     /**
-     * Backwards-compatible constructor: default priority = "Medium"
+     * Default constructor for compatibility (priority = Medium)
      */
     public Task(String title, String project, LocalDate dueDate) {
         this(title, project, dueDate, "Medium");
     }
-
-    // -------- EXISTING METHODS --------
 
     public String getTitle() {
         return this.title;
@@ -80,13 +63,13 @@ public class Task implements Serializable {
 
     public boolean markInComplete() {
         this.complete = false;
-        this.completedDate = null; // reset completed date
+        this.completedDate = null;
         return this.complete;
     }
 
     public boolean markCompleted() {
         this.complete = true;
-        this.completedDate = LocalDate.now(); // ✅ store completion date
+        this.completedDate = LocalDate.now();
         return this.complete;
     }
 
@@ -95,47 +78,38 @@ public class Task implements Serializable {
     }
 
     public void setDueDate(LocalDate dueDate) throws DateTimeException {
-        if (dueDate == null) {
-            throw new DateTimeException("Please enter a valid date.");
+        if (dueDate.compareTo(LocalDate.now()) < 0) {
+            throw new DateTimeException("Past Date not allowed");
         }
-        if (dueDate.isBefore(LocalDate.now())) {
-            throw new DateTimeException("Please enter a future date (not a past one).");
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        this.dueDate = LocalDate.parse(dueDate.format(formatter));
+        DateTimeFormatter formattedDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        this.dueDate = LocalDate.parse(dueDate.format(formattedDate));
     }
 
-    // -------- NEW PRIORITY METHODS --------
-
-    public Priority getPriority() {
+    public String getPriority() {
         return priority;
     }
 
     public void setPriority(String priority) {
-    try {
-        this.priority = Priority.valueOf(priority.toUpperCase());
-    } catch (Exception e) {
-        this.priority = Priority.MEDIUM; // Default
+        if (priority == null || priority.trim().equals("")) {
+            this.priority = "Medium";
+        } else {
+            this.priority = priority.trim();
+        }
     }
-}
-
 
     public LocalDate getCompletedDate() {
         return completedDate;
     }
 
-    /**
-     * Formatted display for the task
-     */
     public String formattedStringOfTask() {
         return (
-                "\nTitle          : " + title +
-                "\nProject        : " + project +
-                "\nPriority       : " + priority +
-                "\nStatus         : " + (complete ? "Completed" : "Not Completed") +
-                "\nDue Date       : " + dueDate +
-                "\nCompleted Date : " + (completedDate == null ? "-" : completedDate) +
-                "\n"
+            "\nTitle     : " + title +
+            "\nProject   : " + project +
+            "\nStatus    : " + (complete ? "Completed" : "NOT COMPLETED") +
+            "\nDue Date  : " + dueDate +
+            "\nPriority  : " + priority +
+            (complete ? "\nCompleted On: " + completedDate : "") +
+            "\n"
         );
     }
 }
