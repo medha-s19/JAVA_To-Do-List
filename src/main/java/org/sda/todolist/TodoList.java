@@ -156,22 +156,44 @@ public class TodoList {
 
     LocalDate today = LocalDate.now();
     for (int i = 0; i < taskList.size(); i++) {
-        Task task = taskList.get(i);
-        LocalDate due = task.getDueDate();
-        String dueStr = (due == null) ? "-" : due.toString();
-        long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+    Task task = taskList.get(i);
+    LocalDate due = task.getDueDate();
+    String dueStr = (due == null) ? "-" : due.toString();
+    long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
 
-        System.out.println(String.format(displayFormat,
-                (i + 1),
-                task.getTitle(),
-                task.getProject(),
-                task.getPriority(),  
-                dueStr,
-                daysTillDue,
-                (task.isComplete() ? "YES" : "NO")
-        ));
+    //  Highlight overdue tasks in red
+    String overdueText = "";
+    if (due != null && !task.isComplete() && due.isBefore(LocalDate.now())) {
+        overdueText = Messages.RED_TEXT + "OVERDUE" + Messages.RESET_TEXT;
     }
-}
+
+    // Color-code priority 
+    String priorityColor = "";
+    switch (task.getPriority().toString()) {
+        case "HIGH":
+            priorityColor = Messages.RED_TEXT;
+            break;
+        case "MEDIUM":
+            priorityColor = Messages.GREEN_TEXT;
+            break;
+        case "LOW":
+            priorityColor = "\u001B[33m"; // yellow
+            break;
+    }
+    String resetColor = Messages.RESET_TEXT;
+
+    System.out.println(String.format(displayFormat,
+        (i + 1),
+        task.getTitle(),
+        task.getProject(),
+        priorityColor + task.getPriority() + resetColor,
+        dueStr,
+        daysTillDue + (overdueText.isEmpty() ? "" : " " + overdueText),
+        (task.isComplete() ? "YES" : "NO")
+));
+    } 
+} 
+
 
 
     /**
@@ -207,8 +229,8 @@ public class TodoList {
                         String overdue = "";
                         java.time.LocalDate d = task.getDueDate();
                         if (d != null && !task.isComplete() && d.isBefore(java.time.LocalDate.now())) {
-                            overdue = " " + Messages.RED_TEXT + "OVERDUE" + Messages.RESET_TEXT;
-                        }
+    overdue = " " + "\u001B[1;31mOVERDUE\u001B[0m";  // Bold red
+}
                         String dueDisplay = (d == null) ? "-" : d.toString();
                         System.out.println(String.format(displayFormat,
                                 task.getProject(),
@@ -219,7 +241,7 @@ public class TodoList {
                     });
 
     } else {
-        // 🟢 Sort by DATE
+        //  Sort by DATE
         String displayFormat = "%-12s %-25s %-20s %-10s %-15s %-10s";
         if (taskList.size() > 0) {
             System.out.println(String.format(displayFormat,
@@ -235,17 +257,34 @@ public class TodoList {
                     LocalDate due = task.getDueDate();
                     String dueStr = (due == null) ? "-" : due.toString();
                     long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
-                    System.out.println(String.format(displayFormat,
-                            dueStr,
-                            task.getTitle(),
-                            task.getProject(),
-                            task.getPriority(),
-                            daysTillDue,
-                            (task.isComplete() ? "YES" : "NO")
-                    ));
+                    // Add color for priority levels
+String priorityColor = "";
+switch (task.getPriority().toString()) {
+    case "HIGH":
+        priorityColor = Messages.RED_TEXT;
+        break;
+    case "MEDIUM":
+        priorityColor = Messages.GREEN_TEXT;
+        break;
+    case "LOW":
+        priorityColor = "\u001B[33m"; // Yellow
+        break;
+}
+String resetColor = Messages.RESET_TEXT;
+
+System.out.println(String.format(displayFormat,
+        dueStr,
+        task.getTitle(),
+        task.getProject(),
+        priorityColor + task.getPriority() + resetColor,
+        daysTillDue,
+        (task.isComplete() ? "YES" : "NO")
+));
+
                 });
     }
-}
+}   
+
 
 
 
