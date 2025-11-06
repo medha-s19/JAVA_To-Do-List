@@ -47,6 +47,7 @@ public class TodoList {
      * @return true, if the Tasks object is created and added to ArrayList, otherwise false
      */
     public boolean readTaskFromUser() {
+    @SuppressWarnings("resource")
     Scanner scan = new Scanner(System.in);
 
     try {
@@ -55,8 +56,22 @@ public class TodoList {
         String title = scan.nextLine();
         System.out.print(">>> Project Name: ");
         String project = scan.nextLine();
-        System.out.print(">>> Due Date [example: 2019-12-31] : ");
-        LocalDate dueDate = LocalDate.parse(scan.nextLine());
+        // Read and validate due date (must be a valid yyyy-mm-dd and in the future)
+        LocalDate dueDate = null;
+        while (true) {
+            System.out.print(">>> Due Date [example: 2019-12-31] : ");
+            String dateInput = scan.nextLine();
+            try {
+                dueDate = LocalDate.parse(dateInput);
+                if (dueDate.isBefore(LocalDate.now())) {
+                    System.out.println("Please enter a future date.");
+                } else {
+                    break; // valid date, exit the loop
+                }
+            } catch (Exception e) {
+                System.out.println("Invalid date format. Please use yyyy-mm-dd.");
+            }
+        }
 
         //  Ask for priority
         System.out.print(">>> Priority (HIGH / MEDIUM / LOW): ");
@@ -257,6 +272,7 @@ public class TodoList {
             Messages.showMessage("Task Num " + selectedTask + "  is selected:" + task.formattedStringOfTask(), false);
 
             Messages.editTaskMenu();
+            @SuppressWarnings("resource")
             Scanner scan = new Scanner(System.in);
             String editChoice = scan.nextLine();
             switch (editChoice) {
@@ -308,8 +324,6 @@ public class TodoList {
      * @return true if the reading operation was successful, otherwise false
      */
     public boolean readFromFile(String filename) {
-        boolean status = false;
-
         try {
             if (!Files.isReadable(Paths.get(filename))) {
                 Messages.showMessage("The data file, i.e., " + filename + " does not exists", true);
