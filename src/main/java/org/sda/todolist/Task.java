@@ -18,7 +18,8 @@ public class Task implements Serializable {
     private LocalDate dueDate;
 
     private String priority;          // Low, Medium, High
-    private LocalDate completedDate;  // When task was completed
+    private LocalDate completedDate; 
+    private String notes; // When task was completed
 
     /**
      * Main constructor (with priority)
@@ -29,6 +30,7 @@ public class Task implements Serializable {
         this.complete = false;
         this.setDueDate(dueDate);
         this.setPriority(priority);
+        this.notes = "";
     }
 
     /**
@@ -101,15 +103,31 @@ public class Task implements Serializable {
         return completedDate;
     }
 
+    public String getNotes() {
+    return notes;
+}
+
+    public void setNotes(String notes) {
+
+        if (notes == null) {
+
+            this.notes = "";
+        } else {
+            this.notes = notes.trim();
+    }
+}
+
+
     public String formattedStringOfTask() {
         return (
-            "\nTitle     : " + title +
-            "\nProject   : " + project +
-            "\nStatus    : " + (complete ? "Completed" : "NOT COMPLETED") +
-            "\nDue Date  : " + dueDate +
-            "\nPriority  : " + priority +
-            (complete ? "\nCompleted On: " + completedDate : "") +
+            "\nTitle          : " + title +
+            "\nProject        : " + project +
+            "\nPriority       : " + priority +
+            "\nStatus         : " + (complete ? "Completed" : "Not Completed") +
+            "\nDue Date       : " + dueDate +
+            "\nCompleted Date : " + (completedDate == null ? "-" : completedDate) +
+            "\nNotes          : " + (notes == null || notes.isEmpty() ? "-" : notes) +
             "\n"
-        );
+       );
     }
 }

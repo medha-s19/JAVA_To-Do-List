@@ -78,13 +78,18 @@ public class TodoList {
         String priority = scan.nextLine().trim().toUpperCase();
 
         //  Validate empty or invalid input — default to MEDIUM
-        if (priority.isEmpty() || 
+        if (priority.isEmpty() ||
             !(priority.equals("HIGH") || priority.equals("MEDIUM") || priority.equals("LOW"))) {
             priority = "MEDIUM";
         }
+        
+        System.out.print(">>> Notes (optional): ");
+        String notes = scan.nextLine();
 
-        //  Create task with user-chosen priority
-        this.taskList.add(new Task(title, project, dueDate, priority));
+        // Create task and add notes
+        Task newTask = new Task(title, project, dueDate, priority);
+        newTask.setNotes(notes);
+        this.taskList.add(newTask);
 
         Messages.showMessage("Task is added successfully with priority: " + priority, false);
         return true;
@@ -129,6 +134,13 @@ public class TodoList {
                 isTaskUpdated = true;
             }
 
+            System.out.print(">>> Notes (leave blank to keep current): ");
+            String notes = scan.nextLine();
+            if (!(notes.trim().equals("") || notes == null)) {
+                task.setNotes(notes);
+                isTaskUpdated = true;
+            }
+
             Messages.showMessage("Task is " + (isTaskUpdated ? "updated successfully" : "NOT modified") + ": Returning to Main Menu", false);
 
             return true;
@@ -167,7 +179,7 @@ public class TodoList {
         overdueText = Messages.RED_TEXT + "OVERDUE" + Messages.RESET_TEXT;
     }
 
-    // Color-code priority 
+    // Color-code priority
     String priorityColor = "";
     switch (task.getPriority().toString()) {
         case "HIGH":
@@ -191,8 +203,8 @@ public class TodoList {
         daysTillDue + (overdueText.isEmpty() ? "" : " " + overdueText),
         (task.isComplete() ? "YES" : "NO")
 ));
-    } 
-} 
+    }
+}
 
 
 
@@ -283,7 +295,7 @@ System.out.println(String.format(displayFormat,
 
                 });
     }
-}   
+}  
 
 
 
