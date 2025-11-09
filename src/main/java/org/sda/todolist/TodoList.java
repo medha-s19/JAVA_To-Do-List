@@ -157,6 +157,11 @@ public class TodoList {
             }
             String resetColor = Messages.RESET_TEXT;
 
+            String completedStatus = task.isComplete() ? "YES" :
+                (due != null && daysTillDue >= 0 && daysTillDue <= 2)
+                    ? Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT
+                    : "NO";
+
             System.out.println(String.format(displayFormat,
                 (i + 1),
                 task.getTitle(),
@@ -164,7 +169,7 @@ public class TodoList {
                 priorityColor + task.getPriority() + resetColor,
                 dueStr,
                 daysTillDue + (overdueText.isEmpty() ? "" : " " + overdueText),
-                (task.isComplete() ? "YES" : "NO")
+                completedStatus
             ));
         }
     }
@@ -191,9 +196,15 @@ public class TodoList {
             taskList.stream()
                     .sorted(Comparator.comparing(Task::getProject, Comparator.nullsLast(String::compareTo)))
                     .forEach(task -> {
-                        String status = task.isComplete() ? "YES" : "NO";
-                        String overdue = "";
                         LocalDate d = task.getDueDate();
+                        long daysTillDue = (d == null) ? 0 : ChronoUnit.DAYS.between(today, d);
+                        
+                        String status = task.isComplete() ? "YES" :
+                            (d != null && daysTillDue >= 0 && daysTillDue <= 2)
+                                ? Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT
+                                : "NO";
+                        
+                        String overdue = "";
                         if (d != null && !task.isComplete() && d.isBefore(LocalDate.now())) {
                             overdue = " " + "\u001B[1;31mOVERDUE\u001B[0m";
                         }
@@ -229,13 +240,18 @@ public class TodoList {
                         }
                         String resetColor = Messages.RESET_TEXT;
 
+                        String completedStatus = task.isComplete() ? "YES" :
+                            (due != null && daysTillDue >= 0 && daysTillDue <= 2)
+                                ? Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT
+                                : "NO";
+
                         System.out.println(String.format(displayFormat,
                                 dueStr,
                                 task.getTitle(),
                                 task.getProject(),
                                 priorityColor + task.getPriority() + resetColor,
                                 daysTillDue,
-                                (task.isComplete() ? "YES" : "NO")
+                                completedStatus
                         ));
                     });
         }

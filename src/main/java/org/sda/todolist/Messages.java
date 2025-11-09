@@ -15,6 +15,8 @@ public class Messages {
     public static final String RED_TEXT = "\u001B[31m";
     //A public constant field to hold code to change the text font color to GREEN
     public static final String GREEN_TEXT = "\u001B[32m";
+    //A public constant field to hold code to change the text font color to YELLOW
+    public static final String YELLOW_TEXT = "\u001B[33m";
 
     /**
      * This method will display the main menu (top level menu) on standard output (terminal)

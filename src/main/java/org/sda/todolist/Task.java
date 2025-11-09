@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class Task implements Serializable {
 
@@ -119,15 +120,25 @@ public class Task implements Serializable {
 
 
     public String formattedStringOfTask() {
-        return (
-            "\nTitle          : " + title +
-            "\nProject        : " + project +
-            "\nPriority       : " + priority +
-            "\nStatus         : " + (complete ? "Completed" : "Not Completed") +
-            "\nDue Date       : " + dueDate +
-            "\nCompleted Date : " + (completedDate == null ? "-" : completedDate) +
-            "\nNotes          : " + (notes == null || notes.isEmpty() ? "-" : notes) +
-            "\n"
-       );
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("\nTitle          : ").append(title);
+        sb.append("\nProject        : ").append(project);
+        sb.append("\nPriority       : ").append(priority);
+        sb.append("\nStatus         : ").append(complete ? "Completed" : "Not Completed");
+        sb.append("\nDue Date       : ").append(dueDate);
+        sb.append("\nCompleted Date : ").append(completedDate == null ? "-" : completedDate);
+
+        if (!complete) {
+            long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), dueDate);
+            if (daysBetween >= 0 && daysBetween <= 2) {
+                sb.append(Messages.YELLOW_TEXT)
+                  .append("\nReminder: due soon!")
+                  .append(Messages.RESET_TEXT);
+            }
+        }
+
+        sb.append("\n");
+        return sb.toString();
     }
 }
