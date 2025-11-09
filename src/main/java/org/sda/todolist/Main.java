@@ -35,30 +35,37 @@ public class Main {
 
             Messages.showMessage("Welcome to ToDoList", false);
 
-            while (!menuChoice.equals("4")) {
-                Messages.mainMenu(todoList.notCompletedCount(), todoList.completedCount());
-                menuChoice = input.nextLine();
+  while (!menuChoice.equals("6")) {
+    Messages.mainMenu(todoList.notCompletedCount(), todoList.completedCount());
+    menuChoice = input.nextLine();
 
-                switch (menuChoice) {
-                    case "1":
-                        Messages.listAllTasksMenu();
-                        todoList.listAllTasks(input.nextLine());
-                        break;
-                    case "2":
-                        todoList.readTaskFromUser();
-                        break;
-                    case "3":
-                        todoList.listAllTasksWithIndex();
-                        Messages.editTaskSelection();
-                        todoList.editTask(input.nextLine());
-                        break;
-                    case "4":
-                        break;
+    switch (menuChoice) {
+        case "1":
+            Messages.listAllTasksMenu();
+            todoList.listAllTasks(input.nextLine());
+            break;
+        case "2":
+            todoList.readTaskFromUser();
+            break;
+        case "3":
+            todoList.listAllTasksWithIndex();
+            Messages.editTaskSelection();
+            todoList.editTask(input.nextLine());
+            break;
+        case "4":
+            todoList.searchTask(); // 🆕 Search option
+            break;
+        case "5":
+            todoList.saveToFile(filename);
+            Messages.showMessage(">>> Progress saved successfully!", false);
+            break;
+        case "6":
+            break;
+        default:
+            Messages.unknownMessage();
+    }
+}
 
-                    default:
-                        Messages.unknownMessage();
-                }
-            }
 
             // saving the task details in data file
             // if this is the first time, a new task file will be created

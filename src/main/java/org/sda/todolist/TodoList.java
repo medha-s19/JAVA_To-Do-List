@@ -21,91 +21,67 @@ import java.time.temporal.ChronoUnit;
  **/
 
 public class TodoList {
-    // An array list of task objects
     private ArrayList<Task> taskList;
 
-    /**
-     * creating an TodoList object
-     */
     public TodoList() {
         taskList = new ArrayList<>();
     }
 
-    /**
-     * Adding a Task object in ArrayList
-     * @param title A String that holds the title of a task and it cannot be empty or null.
-     * @param project A String that holds the name of project associated with task, and it could be an empty string.
-     * @param dueDate The due date of the task as yyyy-mm-dd format
-     */
     public void addTask(String title, String project, LocalDate dueDate) {
         this.taskList.add(new Task(title, project, dueDate, "MEDIUM"));
     }
 
-    /**
-     * A method to read the value from user (standard input, i.e., terminal)
-     * to create a Task object and to add in the ArrayList of Tasks
-     * @return true, if the Tasks object is created and added to ArrayList, otherwise false
-     */
     public boolean readTaskFromUser() {
-    @SuppressWarnings("resource")
-    Scanner scan = new Scanner(System.in);
+        @SuppressWarnings("resource")
+        Scanner scan = new Scanner(System.in);
 
-    try {
-        System.out.println(Messages.GREEN_TEXT + "Please enter the following details to add a task:" + Messages.RESET_TEXT);
-        System.out.print(">>> Task Title  : ");
-        String title = scan.nextLine();
-        System.out.print(">>> Project Name: ");
-        String project = scan.nextLine();
-        // Read and validate due date (must be a valid yyyy-mm-dd and in the future)
-        LocalDate dueDate = null;
-        while (true) {
-            System.out.print(">>> Due Date [example: 2019-12-31] : ");
-            String dateInput = scan.nextLine();
-            try {
-                dueDate = LocalDate.parse(dateInput);
-                if (dueDate.isBefore(LocalDate.now())) {
-                    System.out.println("Please enter a future date.");
-                } else {
-                    break; // valid date, exit the loop
+        try {
+            System.out.println(Messages.GREEN_TEXT + "Please enter the following details to add a task:" + Messages.RESET_TEXT);
+            System.out.print(">>> Task Title  : ");
+            String title = scan.nextLine();
+            System.out.print(">>> Project Name: ");
+            String project = scan.nextLine();
+
+            LocalDate dueDate = null;
+            while (true) {
+                System.out.print(">>> Due Date [example: 2019-12-31] : ");
+                String dateInput = scan.nextLine();
+                try {
+                    dueDate = LocalDate.parse(dateInput);
+                    if (dueDate.isBefore(LocalDate.now())) {
+                        System.out.println("Please enter a future date.");
+                    } else {
+                        break;
+                    }
+                } catch (Exception e) {
+                    System.out.println("Invalid date format. Please use yyyy-mm-dd.");
                 }
-            } catch (Exception e) {
-                System.out.println("Invalid date format. Please use yyyy-mm-dd.");
             }
+
+            System.out.print(">>> Priority (HIGH / MEDIUM / LOW): ");
+            String priority = scan.nextLine().trim().toUpperCase();
+
+            if (priority.isEmpty() ||
+                !(priority.equals("HIGH") || priority.equals("MEDIUM") || priority.equals("LOW"))) {
+                priority = "MEDIUM";
+            }
+
+            System.out.print(">>> Notes (optional): ");
+            String notes = scan.nextLine();
+
+            Task newTask = new Task(title, project, dueDate, priority);
+            newTask.setNotes(notes);
+            this.taskList.add(newTask);
+
+            Messages.showMessage("Task is added successfully with priority: " + priority, false);
+            return true;
+
+        } catch (Exception e) {
+            Messages.showMessage(e.getMessage(), true);
+            return false;
         }
-
-        //  Ask for priority
-        System.out.print(">>> Priority (HIGH / MEDIUM / LOW): ");
-        String priority = scan.nextLine().trim().toUpperCase();
-
-        //  Validate empty or invalid input — default to MEDIUM
-        if (priority.isEmpty() ||
-            !(priority.equals("HIGH") || priority.equals("MEDIUM") || priority.equals("LOW"))) {
-            priority = "MEDIUM";
-        }
-        
-        System.out.print(">>> Notes (optional): ");
-        String notes = scan.nextLine();
-
-        // Create task and add notes
-        Task newTask = new Task(title, project, dueDate, priority);
-        newTask.setNotes(notes);
-        this.taskList.add(newTask);
-
-        Messages.showMessage("Task is added successfully with priority: " + priority, false);
-        return true;
-
-    } catch (Exception e) {
-        Messages.showMessage(e.getMessage(), true);
-        return false;
     }
-}
 
-    /**
-     * A method to read the value from user (standard input, i.e., terminal)
-     * and update the given Task object in the ArrayList of Tasks
-     * @param task the task object whose value need to be updated with user input
-     * @return true, if the Tasks object is updated in ArrayList, otherwise false
-     */
     public boolean readTaskFromUserToUpdate(Task task) {
         Scanner scan = new Scanner(System.in);
         boolean isTaskUpdated = false;
@@ -142,7 +118,6 @@ public class TodoList {
             }
 
             Messages.showMessage("Task is " + (isTaskUpdated ? "updated successfully" : "NOT modified") + ": Returning to Main Menu", false);
-
             return true;
         } catch (Exception e) {
             Messages.showMessage(e.getMessage(), true);
@@ -150,81 +125,60 @@ public class TodoList {
         }
     }
 
-    /**
-     * A method to display the contents of ArrayList with first column as task number
-     */
     public void listAllTasksWithIndex() {
-    String displayFormat = "%-4s %-25s %-20s %-10s %-12s %-15s %-10s";
-    // NUM, TITLE, PROJECT, PRIORITY, DUE DATE, DAYS LEFT, COMPLETED
+        String displayFormat = "%-4s %-25s %-20s %-10s %-12s %-15s %-10s";
 
-    if (taskList.size() > 0) {
-        System.out.println(String.format(displayFormat,
-                "NUM", "TITLE", "PROJECT", "PRIORITY", "DUE DATE", "DAYS LEFT", "COMPLETED"));
-        Messages.separator('=', 100);
-    } else {
-        System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
-        return;
+        if (taskList.size() > 0) {
+            System.out.println(String.format(displayFormat,
+                    "NUM", "TITLE", "PROJECT", "PRIORITY", "DUE DATE", "DAYS LEFT", "COMPLETED"));
+            Messages.separator('=', 100);
+        } else {
+            System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i < taskList.size(); i++) {
+            Task task = taskList.get(i);
+            LocalDate due = task.getDueDate();
+            String dueStr = (due == null) ? "-" : due.toString();
+            long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+
+            String overdueText = "";
+            if (due != null && !task.isComplete() && due.isBefore(LocalDate.now())) {
+                overdueText = Messages.RED_TEXT + "OVERDUE" + Messages.RESET_TEXT;
+            }
+
+            String priorityColor = "";
+            switch (task.getPriority().toString()) {
+                case "HIGH": priorityColor = Messages.RED_TEXT; break;
+                case "MEDIUM": priorityColor = Messages.GREEN_TEXT; break;
+                case "LOW": priorityColor = "\u001B[33m"; break;
+            }
+            String resetColor = Messages.RESET_TEXT;
+
+            System.out.println(String.format(displayFormat,
+                (i + 1),
+                task.getTitle(),
+                task.getProject(),
+                priorityColor + task.getPriority() + resetColor,
+                dueStr,
+                daysTillDue + (overdueText.isEmpty() ? "" : " " + overdueText),
+                (task.isComplete() ? "YES" : "NO")
+            ));
+        }
     }
 
-    LocalDate today = LocalDate.now();
-    for (int i = 0; i < taskList.size(); i++) {
-    Task task = taskList.get(i);
-    LocalDate due = task.getDueDate();
-    String dueStr = (due == null) ? "-" : due.toString();
-    long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
-
-    //  Highlight overdue tasks in red
-    String overdueText = "";
-    if (due != null && !task.isComplete() && due.isBefore(LocalDate.now())) {
-        overdueText = Messages.RED_TEXT + "OVERDUE" + Messages.RESET_TEXT;
-    }
-
-    // Color-code priority
-    String priorityColor = "";
-    switch (task.getPriority().toString()) {
-        case "HIGH":
-            priorityColor = Messages.RED_TEXT;
-            break;
-        case "MEDIUM":
-            priorityColor = Messages.GREEN_TEXT;
-            break;
-        case "LOW":
-            priorityColor = "\u001B[33m"; // yellow
-            break;
-    }
-    String resetColor = Messages.RESET_TEXT;
-
-    System.out.println(String.format(displayFormat,
-        (i + 1),
-        task.getTitle(),
-        task.getProject(),
-        priorityColor + task.getPriority() + resetColor,
-        dueStr,
-        daysTillDue + (overdueText.isEmpty() ? "" : " " + overdueText),
-        (task.isComplete() ? "YES" : "NO")
-));
-    }
-}
-
-
-
-    /**
-     * A method to display the contents of ArrayList
-     * @param sortBy a string holding a number, "2" for sorting by project, otherwise it will sorty by date
-     */
     public void listAllTasks(String sortBy) {
-    Messages.separator('=', 75);
-    System.out.println(
-            "Total Tasks = " + taskList.size() +
-                    "\t\t (Completed = " + completedCount() + "\t\t" +
-                    Messages.RED_TEXT + " Not Completed = " + notCompletedCount() + Messages.RESET_TEXT +
-                    " )");
-    Messages.separator('=', 75);
+        Messages.separator('=', 75);
+        System.out.println("Total Tasks = " + taskList.size() +
+                "\t\t (Completed = " + completedCount() + "\t\t" +
+                Messages.RED_TEXT + " Not Completed = " + notCompletedCount() + Messages.RESET_TEXT + " )");
+        Messages.separator('=', 75);
 
-    LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now();
 
         if (sortBy.equals("2")) {
-            // Show: PROJECT | TITLE | DUE DATE [OVERDUE] | STATUS
             String displayFormat = "%-20s %-30s %-25s %-10s";
 
             if (taskList.size() > 0) {
@@ -239,10 +193,10 @@ public class TodoList {
                     .forEach(task -> {
                         String status = task.isComplete() ? "YES" : "NO";
                         String overdue = "";
-                        java.time.LocalDate d = task.getDueDate();
-                        if (d != null && !task.isComplete() && d.isBefore(java.time.LocalDate.now())) {
-    overdue = " " + "\u001B[1;31mOVERDUE\u001B[0m";  // Bold red
-}
+                        LocalDate d = task.getDueDate();
+                        if (d != null && !task.isComplete() && d.isBefore(LocalDate.now())) {
+                            overdue = " " + "\u001B[1;31mOVERDUE\u001B[0m";
+                        }
                         String dueDisplay = (d == null) ? "-" : d.toString();
                         System.out.println(String.format(displayFormat,
                                 task.getProject(),
@@ -251,64 +205,44 @@ public class TodoList {
                                 status
                         ));
                     });
-
-    } else {
-        //  Sort by DATE
-        String displayFormat = "%-12s %-25s %-20s %-10s %-15s %-10s";
-        if (taskList.size() > 0) {
-            System.out.println(String.format(displayFormat,
-                    "DUE DATE", "TITLE", "PROJECT", "PRIORITY", "DAYS LEFT", "COMPLETED"));
-            Messages.separator('=', 95);
         } else {
-            System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+            String displayFormat = "%-12s %-25s %-20s %-10s %-15s %-10s";
+            if (taskList.size() > 0) {
+                System.out.println(String.format(displayFormat,
+                        "DUE DATE", "TITLE", "PROJECT", "PRIORITY", "DAYS LEFT", "COMPLETED"));
+                Messages.separator('=', 95);
+            } else {
+                System.out.println(Messages.RED_TEXT + "No tasks to show" + Messages.RESET_TEXT);
+            }
+
+            taskList.stream()
+                    .sorted(Comparator.comparing(Task::getDueDate))
+                    .forEach(task -> {
+                        LocalDate due = task.getDueDate();
+                        String dueStr = (due == null) ? "-" : due.toString();
+                        long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
+                        String priorityColor = "";
+                        switch (task.getPriority().toString()) {
+                            case "HIGH": priorityColor = Messages.RED_TEXT; break;
+                            case "MEDIUM": priorityColor = Messages.GREEN_TEXT; break;
+                            case "LOW": priorityColor = "\u001B[33m"; break;
+                        }
+                        String resetColor = Messages.RESET_TEXT;
+
+                        System.out.println(String.format(displayFormat,
+                                dueStr,
+                                task.getTitle(),
+                                task.getProject(),
+                                priorityColor + task.getPriority() + resetColor,
+                                daysTillDue,
+                                (task.isComplete() ? "YES" : "NO")
+                        ));
+                    });
         }
-
-        taskList.stream()
-                .sorted(Comparator.comparing(Task::getDueDate))
-                .forEach(task -> {
-                    LocalDate due = task.getDueDate();
-                    String dueStr = (due == null) ? "-" : due.toString();
-                    long daysTillDue = (due == null) ? 0 : ChronoUnit.DAYS.between(today, due);
-                    // Add color for priority levels
-String priorityColor = "";
-switch (task.getPriority().toString()) {
-    case "HIGH":
-        priorityColor = Messages.RED_TEXT;
-        break;
-    case "MEDIUM":
-        priorityColor = Messages.GREEN_TEXT;
-        break;
-    case "LOW":
-        priorityColor = "\u001B[33m"; // Yellow
-        break;
-}
-String resetColor = Messages.RESET_TEXT;
-
-System.out.println(String.format(displayFormat,
-        dueStr,
-        task.getTitle(),
-        task.getProject(),
-        priorityColor + task.getPriority() + resetColor,
-        daysTillDue,
-        (task.isComplete() ? "YES" : "NO")
-));
-
-                });
     }
-}  
 
-
-
-
-    /**
-     * A method to select a particular Task object from ArrayList and perform editing operations
-     * @param selectedTask Task number that is selected by user from given list to perform editing operations
-     * @throws NullPointerException if task number of given as empty string or null
-     * @throws ArrayIndexOutOfBoundsException if task number does not fall in index range of ArrayList
-     */
     public void editTask(String selectedTask) throws NullPointerException {
         try {
-            // checking if the task number is given and empty string or null
             if (selectedTask.trim().equals("") || selectedTask == null) {
                 throw new NullPointerException("EMPTY/NULL TASK NUM: Returning to Main Menu");
             }
@@ -319,7 +253,6 @@ System.out.println(String.format(displayFormat,
             }
 
             Task task = taskList.get(taskIndex);
-
             Messages.showMessage("Task Num " + selectedTask + "  is selected:" + task.formattedStringOfTask(), false);
 
             Messages.editTaskMenu();
@@ -327,53 +260,30 @@ System.out.println(String.format(displayFormat,
             Scanner scan = new Scanner(System.in);
             String editChoice = scan.nextLine();
             switch (editChoice) {
-                case "1":
-                    readTaskFromUserToUpdate(task);
-                    break;
-                case "2":
+                case "1" -> readTaskFromUserToUpdate(task);
+                case "2" -> {
                     task.markCompleted();
                     Messages.showMessage("Task Num " + selectedTask + " is marked as Completed: Returning to Main Menu", false);
-                    break;
-                case "3":
+                }
+                case "3" -> {
                     taskList.remove(task);
                     Messages.showMessage("Task Num " + selectedTask + " is Deleted: Returning to Main Menu", true);
-                    break;
-                default:
-                    Messages.showMessage("Returning to Main Menu", true);
+                }
+                default -> Messages.showMessage("Returning to Main Menu", true);
             }
         } catch (Exception e) {
-            Messages.showMessage(e.getMessage(),true);
+            Messages.showMessage(e.getMessage(), true);
         }
     }
 
-    /**
- 
-
-    /**
-     * A method to count the number of tasks with completed status
-     * @return number of tasks with completed status
-     */
     public int completedCount() {
-        return (int) taskList.stream()
-                .filter(Task::isComplete)
-                .count();
+        return (int) taskList.stream().filter(Task::isComplete).count();
     }
 
-    /**
-     * A method to count the number of tasks with incomplete status
-     * @return number of tasks with incomplete status
-     */
     public int notCompletedCount() {
-        return (int) taskList.stream()
-                .filter(task -> !task.isComplete())
-                .count();
+        return (int) taskList.stream().filter(task -> !task.isComplete()).count();
     }
 
-    /**
-     * This method will read the data file from disk which will contain the data of previously saved tasks
-     * @param filename a string specifying the full path and extension of data file, for example,  "resources/tasks.obj"
-     * @return true if the reading operation was successful, otherwise false
-     */
     public boolean readFromFile(String filename) {
         try {
             if (!Files.isReadable(Paths.get(filename))) {
@@ -391,16 +301,11 @@ System.out.println(String.format(displayFormat,
             return true;
 
         } catch (Exception e) {
-            Messages.showMessage(e.getMessage(),true);
+            Messages.showMessage(e.getMessage(), true);
             return false;
         }
     }
 
-    /**
-     * This method will write the data of Tasks from ArrayList to data file on disk, i.e., tasks.obj
-     * @param filename a string specifying the full path and extension of data file, for example,  "resources/tasks.obj"
-     * @return true if the reading operation was successful, otherwise false
-     */
     public boolean saveToFile(String filename) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(filename);
@@ -413,7 +318,7 @@ System.out.println(String.format(displayFormat,
             return true;
 
         } catch (Exception e) {
-            Messages.showMessage(e.getMessage(),true);
+            Messages.showMessage(e.getMessage(), true);
             return false;
         }
     }
@@ -440,7 +345,7 @@ System.out.println(String.format(displayFormat,
     public void sortByDueDate() {
         taskList.sort(Comparator.comparing(Task::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
         Messages.showMessage("Tasks have been sorted by due date!", false);
-        listAllTasksWithIndex(); // show updated list
+        listAllTasksWithIndex();
     }
 
     public void sortByPriority() {
@@ -454,5 +359,29 @@ System.out.println(String.format(displayFormat,
         Messages.showMessage("Tasks have been sorted by completion status!", false);
         listAllTasksWithIndex();
     }
-}
 
+    // 🔍 NEW METHOD ADDED BELOW
+    public void searchTask() {
+        @SuppressWarnings("resource")
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter a keyword to search by title or project: ");
+        String keyword = scan.nextLine().trim().toLowerCase();
+
+        System.out.println("\nSearch Results:");
+        Messages.separator('=', 70);
+
+        boolean found = false;
+        for (Task task : taskList) {
+            if (task.getTitle().toLowerCase().contains(keyword) || 
+                task.getProject().toLowerCase().contains(keyword)) {
+                System.out.println(task.formattedStringOfTask());
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println(Messages.RED_TEXT + "No matching tasks found!" + Messages.RESET_TEXT);
+        }
+        Messages.separator('=', 70);
+    }
+}

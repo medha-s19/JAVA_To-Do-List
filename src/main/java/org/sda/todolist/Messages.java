@@ -33,8 +33,11 @@ public class Messages {
         System.out.println("(1) Show Task List (by date or project)");
         System.out.println("(2) Add New Task");
         System.out.println("(3) Edit Task (update, mark as done, remove)");
-        System.out.println("(4) Save and Quit\n");
-        System.out.print("Please enter your choice [1-4]: ");
+        System.out.println("(4) Search Task"); // 
+        System.out.println("(5) Save Progress"); // 
+        System.out.println("(6) Save and Quit");
+
+        System.out.print("Please enter your choice [1-6]: ");
     }
 
     /**
