@@ -266,8 +266,17 @@ public class TodoList {
                     Messages.showMessage("Task Num " + selectedTask + " is marked as Completed: Returning to Main Menu", false);
                 }
                 case "3" -> {
-                    taskList.remove(task);
-                    Messages.showMessage("Task Num " + selectedTask + " is Deleted: Returning to Main Menu", true);
+                    @SuppressWarnings("resource")
+                    Scanner confirmScan = new Scanner(System.in);
+                    System.out.print("Are you sure you want to delete this task? (y/n): ");
+                    String confirm = confirmScan.nextLine().trim().toLowerCase();
+
+                    if (confirm.equals("y") || confirm.equals("yes")) {
+                        taskList.remove(task);
+                        Messages.showMessage("Task Num " + selectedTask + " is Deleted: Returning to Main Menu", true);
+                    } else {
+                        Messages.showMessage("Deletion cancelled. Returning to Main Menu.", false);
+                    }
                 }
                 default -> Messages.showMessage("Returning to Main Menu", true);
             }
