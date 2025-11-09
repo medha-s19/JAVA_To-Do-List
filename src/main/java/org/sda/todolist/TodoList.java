@@ -417,4 +417,42 @@ System.out.println(String.format(displayFormat,
             return false;
         }
     }
+
+    public void showSortMenu() {
+        System.out.println("\n=== Sort Tasks Menu ===");
+        System.out.println("1. Sort by Due Date");
+        System.out.println("2. Sort by Priority");
+        System.out.println("3. Sort by Completion Status");
+        System.out.print(">>> Enter your choice: ");
+        
+        @SuppressWarnings("resource")
+        Scanner scan = new Scanner(System.in);
+        String choice = scan.nextLine();
+
+        switch (choice) {
+            case "1" -> sortByDueDate();
+            case "2" -> sortByPriority();
+            case "3" -> sortByCompletionStatus();
+            default -> System.out.println(Messages.RED_TEXT + "Invalid choice!" + Messages.RESET_TEXT);
+        }
+    }
+
+    public void sortByDueDate() {
+        taskList.sort(Comparator.comparing(Task::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
+        Messages.showMessage("Tasks have been sorted by due date!", false);
+        listAllTasksWithIndex(); // show updated list
+    }
+
+    public void sortByPriority() {
+        taskList.sort(Comparator.comparing(Task::getPriority, Comparator.nullsLast(String::compareToIgnoreCase)));
+        Messages.showMessage("Tasks have been sorted by priority!", false);
+        listAllTasksWithIndex();
+    }
+
+    public void sortByCompletionStatus() {
+        taskList.sort(Comparator.comparing(Task::isComplete));
+        Messages.showMessage("Tasks have been sorted by completion status!", false);
+        listAllTasksWithIndex();
+    }
 }
+
