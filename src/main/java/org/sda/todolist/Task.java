@@ -22,6 +22,8 @@ public class Task implements Serializable {
     private LocalDate completedDate; 
     private String notes; // When task was completed
 
+
+
     /**
      * Main constructor (with priority)
      */

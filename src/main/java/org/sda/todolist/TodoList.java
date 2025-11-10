@@ -157,10 +157,15 @@ public class TodoList {
             }
             String resetColor = Messages.RESET_TEXT;
 
-            String completedStatus = task.isComplete() ? "YES" :
-                (due != null && daysTillDue >= 0 && daysTillDue <= 2)
-                    ? Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT
-                    : "NO";
+            // 🟢 NEW: Add emoji next to completed status
+            String completedStatus;
+            if (task.isComplete()) {
+                completedStatus = "YES ✅";
+            } else if (due != null && daysTillDue >= 0 && daysTillDue <= 2) {
+                completedStatus = Messages.YELLOW_TEXT + "Reminder: due soon! ⚠️" + Messages.RESET_TEXT;
+            } else {
+                completedStatus = "NO ❌";
+            }
 
             System.out.println(String.format(displayFormat,
                 (i + 1),
@@ -198,12 +203,17 @@ public class TodoList {
                     .forEach(task -> {
                         LocalDate d = task.getDueDate();
                         long daysTillDue = (d == null) ? 0 : ChronoUnit.DAYS.between(today, d);
-                        
-                        String status = task.isComplete() ? "YES" :
-                            (d != null && daysTillDue >= 0 && daysTillDue <= 2)
-                                ? Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT
-                                : "NO";
-                        
+
+                        // 🟢 Emoji for completion status
+                        String status;
+                        if (task.isComplete()) {
+                            status = "YES ✅";
+                        } else if (d != null && daysTillDue >= 0 && daysTillDue <= 2) {
+                            status = Messages.YELLOW_TEXT + "Reminder: due soon! ⚠️" + Messages.RESET_TEXT;
+                        } else {
+                            status = "NO ❌";
+                        }
+
                         String overdue = "";
                         if (d != null && !task.isComplete() && d.isBefore(LocalDate.now())) {
                             overdue = " " + "\u001B[1;31mOVERDUE\u001B[0m";
@@ -240,10 +250,15 @@ public class TodoList {
                         }
                         String resetColor = Messages.RESET_TEXT;
 
-                        String completedStatus = task.isComplete() ? "YES" :
-                            (due != null && daysTillDue >= 0 && daysTillDue <= 2)
-                                ? Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT
-                                : "NO";
+                        // 🟢 Emoji for completion status
+                        String completedStatus;
+                        if (task.isComplete()) {
+                            completedStatus = "YES ✅";
+                        } else if (due != null && daysTillDue >= 0 && daysTillDue <= 2) {
+                            completedStatus = Messages.YELLOW_TEXT + "Reminder: due soon! ⚠️" + Messages.RESET_TEXT;
+                        } else {
+                            completedStatus = "NO ❌";
+                        }
 
                         System.out.println(String.format(displayFormat,
                                 dueStr,
@@ -256,6 +271,10 @@ public class TodoList {
                     });
         }
     }
+
+
+}
+
 
     public void editTask(String selectedTask) throws NullPointerException {
         try {
@@ -409,4 +428,4 @@ public class TodoList {
         }
         Messages.separator('=', 70);
     }
-}
+
