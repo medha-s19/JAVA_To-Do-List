@@ -163,7 +163,7 @@ public class TodoList {
             if (task.isComplete()) {
                 completedStatus = "YES ✅";
             } else if (due != null && daysTillDue >= 0 && daysTillDue <= 2) {
-                completedStatus = Messages.YELLOW_TEXT + "Reminder: due soon! ⚠️" + Messages.RESET_TEXT;
+                completedStatus = Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT;
             } else {
                 completedStatus = "NO ❌";
             }
@@ -210,7 +210,7 @@ public class TodoList {
                         if (task.isComplete()) {
                             status = "YES ✅";
                         } else if (d != null && daysTillDue >= 0 && daysTillDue <= 2) {
-                            status = Messages.YELLOW_TEXT + "Reminder: due soon! ⚠️" + Messages.RESET_TEXT;
+                            status = Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT;
                         } else {
                             status = "NO ❌";
                         }
@@ -256,7 +256,7 @@ public class TodoList {
                         if (task.isComplete()) {
                             completedStatus = "YES ✅";
                         } else if (due != null && daysTillDue >= 0 && daysTillDue <= 2) {
-                            completedStatus = Messages.YELLOW_TEXT + "Reminder: due soon! ⚠️" + Messages.RESET_TEXT;
+                            completedStatus = Messages.YELLOW_TEXT + "Reminder: due soon!" + Messages.RESET_TEXT;
                         } else {
                             completedStatus = "NO ❌";
                         }
