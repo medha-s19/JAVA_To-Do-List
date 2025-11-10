@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
 import java.time.temporal.ChronoUnit;
+import java.util.Random;
 
 /**
  * This class represents ToDoList which contains the ArrayList of Task objects
@@ -273,8 +274,6 @@ public class TodoList {
     }
 
 
-}
-
 
     public void editTask(String selectedTask) throws NullPointerException {
         try {
@@ -428,4 +427,18 @@ public class TodoList {
         }
         Messages.separator('=', 70);
     }
+    public void showMotivationalQuote() {
+    String[] quotes = {
+        "Keep going — every small step counts!",
+        "You’re closer than you think!",
+        "Progress, not perfection.",
+        "You got this! Just one task at a time.",
+        "Every accomplishment starts with the decision to try."
+    };
+
+    Random random = new Random();
+    String quote = quotes[random.nextInt(quotes.length)];
+    System.out.println(Messages.GREEN_TEXT + quote + Messages.RESET_TEXT);
+    }
+}
 

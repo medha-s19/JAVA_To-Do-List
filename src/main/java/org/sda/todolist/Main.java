@@ -22,6 +22,7 @@ public class Main {
     public static void main(String args[]) {
         // An object of TodoList to hold all tasks and their data
         TodoList todoList = new TodoList();
+        todoList.showMotivationalQuote();
 
         //A string to hold the choice that will be entered by the user
         String menuChoice = "-17";
